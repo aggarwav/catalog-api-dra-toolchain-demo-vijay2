@@ -69,6 +69,31 @@ exports.dbOptions = function(req, res) {
 	}
 };
 
+//Create and populate or delete the database.
+exports.dbOptionsNew = function(req, res) {
+    var option = req.params.option.toLowerCase();
+    if (option === 'create') {
+        db.cloudant.db.create('items', function(err/*, body*/) {
+            if (!err) {
+                db.populateDB();
+                res.send({msg:'Successfully created database and populated!'});
+            } else {
+                res.send({msg:err});
+            }
+        });
+    } else if (option === 'delete') {
+        db.cloudant.db.destroy('items', function(err/*, body*/) {
+	        if (!err) {
+	            res.send({msg:'Successfully deleted db items!'});
+	        } else {
+	        	res.send({msg:'Error deleting db items: ' + err});
+        	}
+        });
+    } else {
+    	res.send({msg: 'your option was not understood. Please use "create" or "delete"'});
+	}
+};
+
 //Create an item to add to the database.
 exports.create = function(req, res) {
     db.itemsDb.insert(req.body, function(err/*, body, headers*/) {
